@@ -432,5 +432,36 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
+  <script>
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js");
+
+  navigator.serviceWorker.ready.then(async (registration) => {
+    if ("sync" in registration) {
+      try {
+        await registration.sync.register("sync-land-data");
+      } catch (e) {
+        console.log(e);
+      }
+    }
+
+    if ("periodicSync" in registration) {
+      try {
+        const status = await navigator.permissions.query({
+          name: "periodic-background-sync"
+        });
+
+        if (status.state === "granted") {
+          await registration.periodicSync.register("update-data", {
+            minInterval: 24 * 60 * 60 * 1000
+          });
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    }
+  });
+}
+</script>
 </body>
 </html>
