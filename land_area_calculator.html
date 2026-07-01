@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Land Area Calculator</title>
+<style>
+  :root{
+    --green:#1f7a4d;
+    --green-dark:#155a38;
+    --cream:#fbf7ee;
+    --card:#ffffff;
+    --text:#1e2a24;
+    --muted:#6b7a72;
+    --border:#e2ddcf;
+    --accent:#c98a2c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    background:var(--cream);
+    color:var(--text);
+    padding-bottom:60px;
+  }
+  header{
+    background:linear-gradient(135deg,var(--green),var(--green-dark));
+    color:#fff;
+    padding:28px 20px 24px;
+    text-align:center;
+    border-radius:0 0 24px 24px;
+    box-shadow:0 4px 14px rgba(0,0,0,0.12);
+  }
+  header h1{
+    margin:0;
+    font-size:1.5rem;
+    letter-spacing:0.3px;
+  }
+  header p{
+    margin:8px 0 0;
+    font-size:0.9rem;
+    opacity:0.9;
+  }
+  main{
+    max-width:520px;
+    margin:0 auto;
+    padding:16px;
+  }
+  .card{
+    background:var(--card);
+    border-radius:16px;
+    padding:18px;
+    margin-bottom:16px;
+    box-shadow:0 2px 10px rgba(0,0,0,0.05);
+    border:1px solid var(--border);
+  }
+  .card h2{
+    font-size:1.05rem;
+    margin:0 0 4px;
+    color:var(--green-dark);
+  }
+  .card .hint{
+    font-size:0.85rem;
+    color:var(--muted);
+    margin:0 0 14px;
+  }
+  label{
+    display:block;
+    font-size:0.85rem;
+    font-weight:600;
+    color:var(--text);
+    margin-bottom:6px;
+  }
+  select, input[type=number]{
+    width:100%;
+    padding:12px 14px;
+    font-size:1rem;
+    border:1.5px solid var(--border);
+    border-radius:10px;
+    background:#fff;
+    color:var(--text);
+    -webkit-appearance:none;
+    appearance:none;
+  }
+  select:focus, input[type=number]:focus{
+    outline:none;
+    border-color:var(--green);
+  }
+  .field{ margin-bottom:14px; }
+  .toggle-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:#f4f0e3;
+    padding:12px 14px;
+    border-radius:10px;
+  }
+  .toggle-row span{ font-size:0.92rem; font-weight:600; }
+  .switch{
+    position:relative;
+    width:48px;
+    height:26px;
+  }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider{
+    position:absolute; cursor:pointer; inset:0;
+    background:#c9c2ab; border-radius:26px; transition:.2s;
+  }
+  .slider:before{
+    content:""; position:absolute; height:20px; width:20px;
+    left:3px; bottom:3px; background:white; border-radius:50%; transition:.2s;
+  }
+  input:checked + .slider{ background:var(--green); }
+  input:checked + .slider:before{ transform:translateX(22px); }
+
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .side-item label{ font-size:0.78rem; color:var(--muted); }
+
+  button.primary{
+    width:100%;
+    padding:16px;
+    font-size:1.05rem;
+    font-weight:700;
+    color:#fff;
+    background:linear-gradient(135deg,var(--accent),#b8791f);
+    border:none;
+    border-radius:12px;
+    box-shadow:0 4px 12px rgba(201,138,44,0.35);
+    -webkit-tap-highlight-color:transparent;
+  }
+  button.primary:active{ transform:scale(0.98); }
+
+  .error{
+    background:#fdecea;
+    border:1px solid #f5c2bc;
+    color:#8a2c22;
+    padding:12px 14px;
+    border-radius:10px;
+    font-size:0.9rem;
+    margin-top:12px;
+  }
+  .results{
+    display:none;
+    margin-top:16px;
+  }
+  .results.show{ display:block; }
+  .result-box{
+    background:linear-gradient(135deg,#eef7f0,#e2f0e6);
+    border:1px solid #cfe6d6;
+    border-radius:14px;
+    padding:16px;
+    text-align:center;
+    margin-bottom:10px;
+  }
+  .result-box .val{
+    font-size:1.5rem;
+    font-weight:800;
+    color:var(--green-dark);
+  }
+  .result-box .lab{
+    font-size:0.8rem;
+    color:var(--muted);
+    margin-top:2px;
+  }
+  .np-box{
+    background:linear-gradient(135deg,#fdf3e3,#faeacb);
+    border:1px solid #f0d9a3;
+    border-radius:14px;
+    padding:16px;
+    text-align:center;
+  }
+  .np-box .val{
+    font-size:1.4rem;
+    font-weight:800;
+    color:var(--accent);
+  }
+  .np-box .lab{
+    font-size:0.8rem;
+    color:var(--muted);
+    margin-top:4px;
+  }
+  .section-title{
+    font-size:0.95rem;
+    font-weight:700;
+    margin:18px 0 8px;
+    color:var(--green-dark);
+  }
+  .install-tip{
+    font-size:0.78rem;
+    color:var(--muted);
+    text-align:center;
+    padding:0 20px;
+    margin-top:6px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📐 Irregular Land Area Calculator</h1>
+  <p>Triangulation-based plot area, no protractor needed</p>
+</header>
+
+<main>
+
+  <div class="card">
+    <h2>Settings</h2>
+    <p class="hint">Choose your unit and how many sides your plot has.</p>
+
+    <div class="field toggle-row">
+      <span>Show result in Kattha / Dhur</span>
+      <label class="switch">
+        <input type="checkbox" id="nepaliToggle" checked>
+        <span class="slider"></span>
+      </label>
+    </div>
+
+    <div class="field" style="margin-top:14px;">
+      <label for="unitSelect">Map measurement unit</label>
+      <select id="unitSelect">
+        <option value="ft" selected>Feet (ft)</option>
+        <option value="m">Meters (m)</option>
+        <option value="in">Inches (in)</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="numSides">Number of sides (3–50)</label>
+      <input type="number" id="numSides" min="3" max="50" value="6" step="1">
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Step 1: Outer Boundary Walls</h2>
+    <p class="hint">Enter each side length going clockwise around the plot.</p>
+    <div class="grid2" id="sidesContainer"></div>
+  </div>
+
+  <div class="card" id="diagCard" style="display:none;">
+    <h2>Step 2: Internal Diagonals</h2>
+    <p class="hint" id="diagHint">Draw lines from your starting corner to the far corners and enter their lengths.</p>
+    <div class="grid2" id="diagContainer"></div>
+  </div>
+
+  <button class="primary" id="calcBtn">🧮 Calculate Exact Area</button>
+
+  <div id="errorBox"></div>
+
+  <div class="results" id="resultsBox">
+    <div class="section-title">🎉 Result</div>
+    <div class="result-box">
+      <div class="val" id="mainAreaVal"></div>
+      <div class="lab">Standard Area</div>
+    </div>
+    <div class="result-box">
+      <div class="val" id="sqmVal"></div>
+      <div class="lab">Metric Area (sq. meters)</div>
+    </div>
+    <div class="np-box" id="npaliResult" style="display:none;">
+      <div class="val" id="npaliVal"></div>
+      <div class="lab">Terai Land System (Bigha · Kattha · Dhur)</div>
+    </div>
+  </div>
+
+  <p class="install-tip">📲 Tip: Open the browser menu and choose "Add to Home Screen" to use this like an app.</p>
+
+</main>
+
+<script>
+const unitLabels = { ft: "Feet (ft)", m: "Meters (m)", in: "Inches (in)" };
+
+function convertToMeters(value, unit){
+  if(unit === 'm') return value;
+  if(unit === 'ft') return value * 0.3048;
+  if(unit === 'in') return value * 0.0254;
+  return value;
+}
+
+function convertFromMeters(valueInMeters, targetUnit){
+  if(targetUnit === 'm') return {val: valueInMeters, label: "sq. meters"};
+  if(targetUnit === 'ft') return {val: valueInMeters * 10.7639104, label: "sq. feet"};
+  if(targetUnit === 'in') return {val: valueInMeters * 1550.0031, label: "sq. inches"};
+  return {val: valueInMeters, label: "sq. meters"};
+}
+
+function calcTriangleArea(a,b,c){
+  const s = (a+b+c)/2;
+  const inner = s*(s-a)*(s-b)*(s-c);
+  if(inner <= 0) return null;
+  return Math.sqrt(inner);
+}
+
+function convertToNepaliTerai(areaInSqMeters){
+  const sqFt = areaInSqMeters * 10.7639104;
+  const bigha = Math.floor(sqFt / 72900);
+  let remaining = sqFt % 72900;
+  const kattha = Math.floor(remaining / 3645);
+  remaining = remaining % 3645;
+  const dhur = remaining / 182.25;
+  return {bigha, kattha, dhur};
+}
+
+const sidesContainer = document.getElementById('sidesContainer');
+const diagContainer = document.getElementById('diagContainer');
+const diagCard = document.getElementById('diagCard');
+const numSidesInput = document.getElementById('numSides');
+
+function buildInputs(){
+  const n = Math.max(3, Math.min(50, parseInt(numSidesInput.value) || 3));
+  numSidesInput.value = n;
+
+  sidesContainer.innerHTML = '';
+  for(let i=0;i<n;i++){
+    const div = document.createElement('div');
+    div.className = 'side-item';
+    div.innerHTML = `<label>Side ${i+1}</label>
+      <input type="number" step="any" min="0" value="10" id="side_${i}">`;
+    sidesContainer.appendChild(div);
+  }
+
+  const numDiagonals = n - 3;
+  diagContainer.innerHTML = '';
+  if(numDiagonals > 0){
+    diagCard.style.display = 'block';
+    for(let i=0;i<numDiagonals;i++){
+      const div = document.createElement('div');
+      div.className = 'side-item';
+      div.innerHTML = `<label>Diagonal ${i+1}</label>
+        <input type="number" step="any" min="0" value="15" id="diag_${i}">`;
+      diagContainer.appendChild(div);
+    }
+  } else {
+    diagCard.style.display = 'none';
+  }
+}
+
+numSidesInput.addEventListener('change', buildInputs);
+buildInputs();
+
+document.getElementById('calcBtn').addEventListener('click', () => {
+  const errorBox = document.getElementById('errorBox');
+  const resultsBox = document.getElementById('resultsBox');
+  errorBox.innerHTML = '';
+  resultsBox.classList.remove('show');
+
+  const unit = document.getElementById('unitSelect').value;
+  const isNepali = document.getElementById('nepaliToggle').checked;
+  const n = parseInt(numSidesInput.value);
+  const numDiagonals = n - 3;
+
+  const outerSides = [];
+  for(let i=0;i<n;i++){
+    const raw = parseFloat(document.getElementById(`side_${i}`).value) || 0;
+    outerSides.push(convertToMeters(raw, unit));
+  }
+
+  const diagonals = [];
+  for(let i=0;i<numDiagonals;i++){
+    const raw = parseFloat(document.getElementById(`diag_${i}`).value) || 0;
+    diagonals.push(convertToMeters(raw, unit));
+  }
+
+  let totalAreaMeters = 0;
+  let currentBase = outerSides[0];
+  let geometricError = false;
+
+  for(let i=0;i<n-2;i++){
+    const sideA = currentBase;
+    const sideB = outerSides[i+1];
+    let sideC;
+
+    if(i < numDiagonals){
+      sideC = diagonals[i];
+      currentBase = diagonals[i];
+    } else {
+      sideC = outerSides[outerSides.length-1];
+    }
+
+    const triArea = calcTriangleArea(sideA, sideB, sideC);
+    if(triArea === null){
+      geometricError = true;
+      errorBox.innerHTML = `<div class="error">⚠️ Geometric error on Triangle ${i+1}! The lines
+        (${sideA.toFixed(2)}, ${sideB.toFixed(2)}, ${sideC.toFixed(2)} meters) cannot physically
+        form a closed triangle. Please re-check your measurements.</div>`;
+      break;
+    }
+    totalAreaMeters += triArea;
+  }
+
+  if(!geometricError){
+    const {val: finalArea, label: unitLabel} = convertFromMeters(totalAreaMeters, unit);
+
+    document.getElementById('mainAreaVal').textContent = `${finalArea.toFixed(2)} ${unitLabel}`;
+    document.getElementById('sqmVal').textContent = `${totalAreaMeters.toFixed(2)} sq. meters`;
+
+    const npaliResult = document.getElementById('npaliResult');
+    if(isNepali){
+      const {bigha, kattha, dhur} = convertToNepaliTerai(totalAreaMeters);
+      let text;
+      if(bigha > 0){
+        text = `${bigha} Bigha, ${kattha} Kattha, ${dhur.toFixed(2)} Dhur`;
+      } else {
+        text = `${kattha} Kattha, ${dhur.toFixed(2)} Dhur`;
+      }
+      document.getElementById('npaliVal').textContent = text;
+      npaliResult.style.display = 'block';
+    } else {
+      npaliResult.style.display = 'none';
+    }
+
+    resultsBox.classList.add('show');
+    resultsBox.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+});
+</script>
+
+</body>
+</html>
