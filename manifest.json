@@ -1,14 +1,23 @@
 {
+  "id": "/",
   "name": "Land Area Calculator",
   "short_name": "LandCalc",
-  "description": "A simple land area calculator for measuring and calculating land dimensions.",
+  "description": "A simple and accurate land area calculator.",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": [
+    "window-controls-overlay",
+    "standalone"
+  ],
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#2e7d32",
-  "orientation": "portrait",
   "lang": "en",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "icons/icon-192.png",
@@ -21,6 +30,14 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshots/home.png",
+      "sizes": "1080x1920",
+      "type": "image/png",
+      "form_factor": "narrow"
     }
   ]
 }
