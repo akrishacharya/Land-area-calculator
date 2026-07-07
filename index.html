@@ -178,6 +178,7 @@
     border-radius:14px;
     padding:16px;
     text-align:center;
+    margin-bottom:10px;
   }
   .np-box .val{
     font-size:1.4rem;
@@ -218,11 +219,20 @@
     <p class="hint">Choose your unit and how many sides your plot has.</p>
 
     <div class="field toggle-row">
-      <span>Show result in Kattha / Dhur</span>
+      <span>Enable Nepalese Land System</span>
       <label class="switch">
-        <input type="checkbox" id="nepaliToggle" checked>
+        <input type="checkbox" id="nepaliToggle" checked onchange="toggleNepSystemVisibility()">
         <span class="slider"></span>
       </label>
+    </div>
+
+    <div class="field" id="nepSystemField" style="margin-top:14px;">
+      <label for="nepaliSystemSelect">Local System Selection</label>
+      <select id="nepaliSystemSelect">
+        <option value="both" selected>Show Both Systems</option>
+        <option value="terai">Terai (Bigha - Kattha - Dhur)</option>
+        <option value="hilly">Hilly (Ropani - Aana - Paisa - Daam)</option>
+      </select>
     </div>
 
     <div class="field" style="margin-top:14px;">
@@ -266,9 +276,15 @@
       <div class="val" id="sqmVal"></div>
       <div class="lab">Metric Area (sq. meters)</div>
     </div>
-    <div class="np-box" id="npaliResult" style="display:none;">
-      <div class="val" id="npaliVal"></div>
+    
+    <div class="np-box" id="npaliResultTerai" style="display:none;">
+      <div class="val" id="npaliValTerai"></div>
       <div class="lab">Terai Land System (Bigha · Kattha · Dhur)</div>
+    </div>
+
+    <div class="np-box" id="npaliResultHilly" style="display:none;">
+      <div class="val" id="npaliValHilly"></div>
+      <div class="lab">Hilly Land System (Ropani · Aana · Paisa · Daam)</div>
     </div>
   </div>
 
@@ -279,6 +295,12 @@
 
 <script>
 const unitLabels = { ft: "Feet (ft)", m: "Meters (m)", in: "Inches (in)" };
+
+function toggleNepSystemVisibility() {
+  const checkbox = document.getElementById('nepaliToggle');
+  const field = document.getElementById('nepSystemField');
+  field.style.display = checkbox.checked ? 'block' : 'none';
+}
 
 function convertToMeters(value, unit){
   if(unit === 'm') return value;
@@ -309,6 +331,28 @@ function convertToNepaliTerai(areaInSqMeters){
   remaining = remaining % 3645;
   const dhur = remaining / 182.25;
   return {bigha, kattha, dhur};
+}
+
+function convertToNepaliHilly(areaInSqMeters){
+  const sqFt = areaInSqMeters * 10.7639104;
+  
+  // 1 Ropani = 5476 sq ft
+  // 1 Aana = 342.25 sq ft
+  // 1 Paisa = 85.5625 sq ft
+  // 1 Daam = 21.390625 sq ft
+  
+  const ropani = Math.floor(sqFt / 5476);
+  let remaining = sqFt % 5476;
+  
+  const aana = Math.floor(remaining / 342.25);
+  remaining = remaining % 342.25;
+  
+  const paisa = Math.floor(remaining / 85.5625);
+  remaining = remaining % 85.5625;
+  
+  const daam = remaining / 21.390625;
+  
+  return {ropani, aana, paisa, daam};
 }
 
 const sidesContainer = document.getElementById('sidesContainer');
@@ -356,6 +400,7 @@ document.getElementById('calcBtn').addEventListener('click', () => {
 
   const unit = document.getElementById('unitSelect').value;
   const isNepali = document.getElementById('nepaliToggle').checked;
+  const nepaliSystem = document.getElementById('nepaliSystemSelect').value;
   const n = parseInt(numSidesInput.value);
   const numDiagonals = n - 3;
 
@@ -404,19 +449,32 @@ document.getElementById('calcBtn').addEventListener('click', () => {
     document.getElementById('mainAreaVal').textContent = `${finalArea.toFixed(2)} ${unitLabel}`;
     document.getElementById('sqmVal').textContent = `${totalAreaMeters.toFixed(2)} sq. meters`;
 
-    const npaliResult = document.getElementById('npaliResult');
+    const npaliResultTerai = document.getElementById('npaliResultTerai');
+    const npaliResultHilly = document.getElementById('npaliResultHilly');
+    
     if(isNepali){
-      const {bigha, kattha, dhur} = convertToNepaliTerai(totalAreaMeters);
-      let text;
-      if(bigha > 0){
-        text = `${bigha} Bigha, ${kattha} Kattha, ${dhur.toFixed(2)} Dhur`;
+      // Terai Conversion Processing
+      if(nepaliSystem === 'terai' || nepaliSystem === 'both') {
+        const {bigha, kattha, dhur} = convertToNepaliTerai(totalAreaMeters);
+        let textTerai = bigha > 0 ? `${bigha} Bigha, ${kattha} Kattha, ${dhur.toFixed(2)} Dhur` : `${kattha} Kattha, ${dhur.toFixed(2)} Dhur`;
+        document.getElementById('npaliValTerai').textContent = textTerai;
+        npaliResultTerai.style.display = 'block';
       } else {
-        text = `${kattha} Kattha, ${dhur.toFixed(2)} Dhur`;
+        npaliResultTerai.style.display = 'none';
       }
-      document.getElementById('npaliVal').textContent = text;
-      npaliResult.style.display = 'block';
+
+      // Hilly Conversion Processing
+      if(nepaliSystem === 'hilly' || nepaliSystem === 'both') {
+        const {ropani, aana, paisa, daam} = convertToNepaliHilly(totalAreaMeters);
+        let textHilly = `${ropani} Ropani, ${aana} Aana, ${paisa} Paisa, ${daam.toFixed(2)} Daam`;
+        document.getElementById('npaliValHilly').textContent = textHilly;
+        npaliResultHilly.style.display = 'block';
+      } else {
+        npaliResultHilly.style.display = 'none';
+      }
     } else {
-      npaliResult.style.display = 'none';
+      npaliResultTerai.style.display = 'none';
+      npaliResultHilly.style.display = 'none';
     }
 
     resultsBox.classList.add('show');
@@ -433,7 +491,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 </script>
-  <script>
+<script>
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js");
 
